@@ -265,7 +265,7 @@ Branch
 JMP addr 
  [PCLout, MARLin],
  [PCHout, MARHin],
- [RAMout, TMPin,  CE],
+ [RAMout, TMPin, CE],
  [PCLout, MARLin],
  [PCHout, MARHin],
  [RAMout, PCHin],
@@ -280,11 +280,11 @@ JPE addr
 JPO addr" 
  [PCLout, MARLin],
  [PCHout, MARHin],
- [RAMout, TMPin,  CE],
+ [RAMout, TMPin, CE],
  [PCLout, MARLin],
  [PCHout, MARHin],
  [RAMout, PCHin],
- [ALUout, TPCLin]
+ [ALUout, PCLin]
 CALL addr 
  [SPLout, TMPin],
  [ALUout, MARLin] + ALUDCR,
@@ -298,10 +298,10 @@ CALL addr
  [PCLout, RAMin],
  [PCLout, MARLin],
  [PCHout, MARHin],
- [RAMout, TMPin,  CE],
+ [RAMout, TMPin, CE],
  [PCLout, MARLin],
  [PCHout, MARHin],
- [RAMout, PCHin,  CE],
+ [RAMout, PCHin, CE],
  [ALUout, PCLin]
 RET 
  [SPLout, MARLin],
