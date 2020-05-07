@@ -37,21 +37,12 @@ if __name__ == '__main__':
 
         if instruction == "write":
             fileName = sys.argv[2] if len(sys.argv) > 2 else "EEPROMdata"
-            fileStartPage = int(sys.argv[3]) if len(sys.argv) > 3 else 0
-            fileEndPage = 0
-            if len(sys.argv) > 4:
-                if sys.argv[4] == "end":
-                    fileEndPage = 2**10
-                else:
-                    fileEndPage = int(sys.argv[4]) + 1
-            elif len(sys.argv) > 3:
-                fileEndPage = fileStartPage + 1
-            else:
-                fileEndPage = 2**10
-            eepromPageOffset = int(sys.argv[5]) if len(sys.argv) > 5 else fileStartPage
+            eepromPageOffset = int(sys.argv[3]) if len(sys.argv) > 2 else 0
+            filePageOffset = int(sys.argv[4]) if len(sys.argv) > 3 else 0
+            filePageCount = int(sys.argv[5]) if len(sys.argv) > 4 else None
             
-            fileEnd = fileEndPage * 128 if fileEndPage <= 2**10 else 2**17
-            file = open(fileName, "rb").read()[(fileStartPage * 128):fileEnd]
+            fileEnd = (filePageOffset + filePageCount) * 128 if filePageCount != None and (filePageCount + filePageOffset) < 2**10 else 2**17
+            file = open(fileName, "rb").read()[(filePageOffset * 128):fileEnd]
             pageCount = math.ceil(len(file) / 128)
 
             printProgressBar(0, pageCount)
@@ -100,48 +91,44 @@ if __name__ == '__main__':
 
                 pageNum += 1
         elif instruction == "read":
-            startPageNum = int(sys.argv[2]) if len(sys.argv) > 2 else 0
-            endPageNum = int(sys.argv[3]) + 1 if len(sys.argv) > 3 else startPageNum + 1
+            pageNum = sys.argv[2] if len(sys.argv) > 2 else 0
             
-            for pageNum in range(startPageNum, endPageNum):
-                sentBytes = 0
-                sentBytes = link.tx_obj(2, sentBytes)   #inserts data.instruction
-                intSize = sentBytes
-                sentBytes = link.tx_obj(pageNum, sentBytes) #inserts data.pageNum
-                sentBytes = link.tx_obj(0, sentBytes)   #inserts data.len
+            sentBytes = 0
+            sentBytes = link.tx_obj(2, sentBytes)   #inserts data.instruction
+            intSize = sentBytes
+            sentBytes = link.tx_obj(pageNum, sentBytes) #inserts data.pageNum
+            sentBytes = link.tx_obj(0, sentBytes)   #inserts data.len
 
-                link.send(sentBytes)
-                
-                #wait for response
-                while not link.available():
-                    if link.status < 0:
-                        if link.status == -1:
-                            print('ERROR: CRC_ERROR')
-                        elif link.status == -2:
-                            print('ERROR: PAYLOAD_ERROR')
-                        elif link.status == -3:
-                            print('ERROR: STOP_BYTE_ERROR')
-                
+            link.send(sentBytes)
 
-                receivedBytes = 0
+            #wait for response
+            while not link.available():
+                if link.status < 0:
+                    if link.status == -1:
+                        print('ERROR: CRC_ERROR')
+                    elif link.status == -2:
+                        print('ERROR: PAYLOAD_ERROR')
+                    elif link.status == -3:
+                        print('ERROR: STOP_BYTE_ERROR')
+            
+            receivedBytes = 0
 
-                receivedPage = link.rx_obj(int, 4, receivedBytes)
-                receivedBytes += 4
-                receivedLen = link.rx_obj(int, 4, receivedBytes)
-                receivedBytes += 4
-                receivedList = link.rx_obj(list, receivedLen, receivedBytes, "B")
-                
-                if receivedPage != pageNum:
-                    raise ValueError("sent page: {}, received page: {}".format(pageNum, receivedPage))
-                
-                print("page {}:".format(receivedPage))
-                for i in range(4):
-                    outputGroups = ["", "", "", ""]
-                    for j in range(4):
-                        offset = (4 * i + j) * 8
-                        outputGroups[j] =" ".join(["{0:02X}".format(num) for num in receivedList[offset:(offset + 8)]])
-                    print("   ".join(outputGroups))
-        #print("end of program")
+            receivedPage = link.rx_obj(int, 4, receivedBytes)
+            receivedBytes += 4
+            receivedLen = link.rx_obj(int, 4, receivedBytes)
+            receivedBytes += 4
+            receivedList = link.rx_obj(list, receivedLen, receivedBytes, "B")
+            
+            if receivedPage != pageNum:
+                raise ValueError("sent page: {}, received page: {}".format(pageNum, receivedPage))
+            
+            print("page {}:".format(receivedPage))
+            for i in range(4):
+                outputGroups = ["", "", "", ""]
+                for j in range(4):
+                    offset = (4 * i + j) * 8
+                    outputGroups[j] =" ".join([hexValue[2:] for hexValue in receivedList[offset:(offset + 8)]])
+                print("   ".join(outputGroups))
             
 
 
@@ -151,11 +138,9 @@ if __name__ == '__main__':
     
     except KeyboardInterrupt:
         link.close()
-        print()
     
     except:
         import traceback
         traceback.print_exc()
         
         link.close()
-        print()
