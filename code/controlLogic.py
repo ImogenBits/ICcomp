@@ -716,14 +716,15 @@ def createInstructions():
     createBranchInstructions()
     createStackAndMachineControlInstructions()
 
-def printInstructions():
-    print("Instructions:")
+def getInstructionsAsString():
+    outStr = ""
     for i in range(2**8):
         if i in instructions:
             currInstr = instructions[i]
             if type(currInstr) is dict:
                 currInstr = currInstr[0]
-            print("{:2X} | {}".format(i, currInstr))
+            outStr += "{:02X} | {}\n".format(i, currInstr)
+    return outStr
 
 def getInfoFromAddr(addr):
     pins = [
@@ -761,38 +762,51 @@ def getInfoFromAddr(addr):
 
 if __name__ == '__main__':
     try:
-        eepromIndex = int(sys.argv[1]) if len(sys.argv) > 1 else 5
-        fileName = sys.argv[2] if len(sys.argv) > 2 else "ControlLogic{}".format(eepromIndex)
+        command = None
+        if len(sys.argv) <= 1 or sys.argv[1].isnumeric():
+            command = "eeprom"
+        else:
+            command = sys.argv[1]
+        
+        if command == "eeprom":
+            eepromIndex = int(sys.argv[1]) if len(sys.argv) > 1 else 5
+            fileName = sys.argv[2] if len(sys.argv) > 2 else "ControlLogic{}".format(eepromIndex)
 
-        outFile = open(fileName, "wb")
-        createInstructions()
-        outArr = []
+            outFile = open(fileName, "wb")
+            createInstructions()
+            outArr = []
 
-        for eepromAddr in range(2**17):
-            byteCode, flags, step = getInfoFromAddr(eepromAddr)
-            outByte = 0x00
-            for i, op in operations[eepromIndex].items():
-                outByte |= (1 - op.activeVoltage) << op.pin
-            
-            currOpList = []
-            currInstr = None
-            if byteCode in instructions:
-                currInstr = instructions[byteCode]
-                if type(currInstr) is dict:
-                    currInstr = currInstr[flags]
-            else:
-                currInstr = instructions["DEFAULT"]
-            
-            if currInstr is not None and len(currInstr.operations) > step:
-                opList = currInstr.operations[step]
-                for op in opList:
-                    if op.eeprom == eepromIndex:
-                        outByte &= ~(0x01 << op.pin)
-                        outByte |= op.activeVoltage << op.pin
-            
-            outArr.append(outByte)
-        outFile.write(bytes(outArr))
-        outFile.close()
+            for eepromAddr in range(2**17):
+                byteCode, flags, step = getInfoFromAddr(eepromAddr)
+                outByte = 0x00
+                for i, op in operations[eepromIndex].items():
+                    outByte |= (1 - op.activeVoltage) << op.pin
+                
+                currOpList = []
+                currInstr = None
+                if byteCode in instructions:
+                    currInstr = instructions[byteCode]
+                    if type(currInstr) is dict:
+                        currInstr = currInstr[flags]
+                else:
+                    currInstr = instructions["DEFAULT"]
+                
+                if currInstr is not None and len(currInstr.operations) > step:
+                    opList = currInstr.operations[step]
+                    for op in opList:
+                        if op.eeprom == eepromIndex:
+                            outByte &= ~(0x01 << op.pin)
+                            outByte |= op.activeVoltage << op.pin
+                
+                outArr.append(outByte)
+            outFile.write(bytes(outArr))
+            outFile.close()
+        elif command == "instrList":
+            outFileName = sys.argv[2] if len(sys.argv) > 2 else "instructionList.txt"
+            with open(outFileName, "w") as outFile:
+                createInstructions()
+                outFile.write(getInstructionsAsString())
+                outFile.close()
 
             
 

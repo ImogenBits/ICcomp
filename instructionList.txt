@@ -1,0 +1,223 @@
+ 0 | INIT
+ 1 | INIT2
+ 2 | MOV A, A
+ 3 | MOV A, B
+ 4 | MOV A, C
+ 5 | MOV A, D
+ 6 | MOV A, E
+ 7 | MOV A, H
+ 8 | MOV A, L
+ 9 | MOV B, A
+ A | MOV B, B
+ B | MOV B, C
+ C | MOV B, D
+ D | MOV B, E
+ E | MOV B, H
+ F | MOV B, L
+10 | MOV C, A
+11 | MOV C, B
+12 | MOV C, C
+13 | MOV C, D
+14 | MOV C, E
+15 | MOV C, H
+16 | MOV C, L
+17 | MOV D, A
+18 | MOV D, B
+19 | MOV D, C
+1A | MOV D, D
+1B | MOV D, E
+1C | MOV D, H
+1D | MOV D, L
+1E | MOV E, A
+1F | MOV E, B
+20 | MOV E, C
+21 | MOV E, D
+22 | MOV E, E
+23 | MOV E, H
+24 | MOV E, L
+25 | MOV H, A
+26 | MOV H, B
+27 | MOV H, C
+28 | MOV H, D
+29 | MOV H, E
+2A | MOV H, H
+2B | MOV H, L
+2C | MOV L, A
+2D | MOV L, B
+2E | MOV L, C
+2F | MOV L, D
+30 | MOV L, E
+31 | MOV L, H
+32 | MOV L, L
+33 | MOV M, A
+34 | MOV M, B
+35 | MOV M, C
+36 | MOV M, D
+37 | MOV M, E
+38 | MOV M, H
+39 | MOV M, L
+3A | MOV A, M
+3B | MOV B, M
+3C | MOV C, M
+3D | MOV D, M
+3E | MOV E, M
+3F | MOV H, M
+40 | MOV L, M
+41 | MVI data, A
+42 | MVI data, B
+43 | MVI data, C
+44 | MVI data, D
+45 | MVI data, E
+46 | MVI data, H
+47 | MVI data, L
+48 | MVI data, M
+49 | LXI data, BC
+4A | LXI data, DE
+4B | LXI data, HL
+4C | LXI data, SP
+4D | LDA addr
+4E | STA addr
+4F | LDHL addr
+50 | STHL addr
+51 | LDAX BC
+52 | LDAX DE
+53 | LDAX HL
+54 | LDAX SP
+55 | STAX BC
+56 | STAX DE
+57 | STAX HL
+58 | STAX SP
+59 | XCHG
+5A | ADD A
+5B | ADD B
+5C | ADD C
+5D | ADD D
+5E | ADD E
+5F | ADD H
+60 | ADD L
+61 | ADD M
+62 | ADC A
+63 | ADC B
+64 | ADC C
+65 | ADC D
+66 | ADC E
+67 | ADC H
+68 | ADC L
+69 | ADC M
+6A | ADI data
+6B | ACI data
+6C | DAD BC
+6D | DAD DE
+6E | DAD HL
+6F | DAD SP
+70 | SUB A
+71 | SUB B
+72 | SUB C
+73 | SUB D
+74 | SUB E
+75 | SUB H
+76 | SUB L
+77 | SUB M
+78 | SBB A
+79 | SBB B
+7A | SBB C
+7B | SBB D
+7C | SBB E
+7D | SBB H
+7E | SBB L
+7F | SBB M
+80 | SUI data
+81 | SBI data
+82 | INR A
+83 | INR B
+84 | INR C
+85 | INR D
+86 | INR E
+87 | INR H
+88 | INR L
+89 | INR M
+8A | DCR A
+8B | DCR B
+8C | DCR C
+8D | DCR D
+8E | DCR E
+8F | DCR H
+90 | DCR L
+91 | DCR M
+92 | INX BC
+93 | INX DE
+94 | INX HL
+95 | INX SP
+96 | DCX BC
+97 | DCX DE
+98 | DCX HL
+99 | DCX SP
+9A | ANA A
+9B | ANA B
+9C | ANA C
+9D | ANA D
+9E | ANA E
+9F | ANA H
+A0 | ANA L
+A1 | ANA M
+A2 | ANI data
+A3 | ORA A
+A4 | ORA B
+A5 | ORA C
+A6 | ORA D
+A7 | ORA E
+A8 | ORA H
+A9 | ORA L
+AA | ORA M
+AB | ORI data
+AC | XRA A
+AD | XRA B
+AE | XRA C
+AF | XRA D
+B0 | XRA E
+B1 | XRA H
+B2 | XRA L
+B3 | XRA M
+B4 | XRI data
+B5 | CMA
+B6 | CMC
+B7 | STC
+B8 | CMP A
+B9 | CMP B
+BA | CMP C
+BB | CMP D
+BC | CMP E
+BD | CMP H
+BE | CMP L
+BF | CMP M
+C0 | CPI data
+C1 | RRC
+C2 | RAL
+C3 | RAR
+C4 | JMP addr
+C5 | JC addr
+C6 | JNC addr
+C7 | JPE addr
+C8 | JPO addr
+C9 | JZ addr
+CA | JNZ addr
+CB | JP addr
+CC | JM addr
+CD | CALL addr
+CE | RET
+CF | PUSH BC
+D0 | PUSH DE
+D1 | PUSH HL
+D2 | PUSH SP
+D3 | PUSH PSW
+D4 | POP BC
+D5 | POP DE
+D6 | POP HL
+D7 | POP SP
+D8 | POP PSW
+D9 | SPAI data
+DA | SPSI data
+DB | XRHL
+DC | SPHL
+DD | HLT
+DE | NOP
