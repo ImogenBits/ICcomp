@@ -1,124 +1,156 @@
 import sys
 
-operations = {}
+#Operations
 class Operation:
-    def __init__(self, eeprom, pin, activeVoltage = 0):
+    byName = {}
+    byEeprom = {}
+    def __init__(self, eeprom, pin, name, activeVoltage = 0):
         self.eeprom = eeprom
         self.pin = pin
         self.activeVoltage = activeVoltage
-        if eeprom not in operations:
-            operations[eeprom] = {}
-        if pin not in operations[eeprom]:
-            operations[eeprom][pin] = self
+        self.name = name
+        if eeprom not in Operation.byEeprom:
+            Operation.byEeprom[eeprom] = {}
+        if pin not in Operation.byEeprom[eeprom]:
+            Operation.byEeprom[eeprom][pin] = self
         else:
-            raise Exception("Assinging operation to already assinged pin.")
+            raise Exception("Assinging operation to already assinged pin {}.".format(pin)).
 
+        if name is None:
+            raise Exception("Tried to create Operation without name".format(name))
+        elif name in Operation.byName:
+            raise Exception("Operation with name {} already created!".format(name))
+        else:
+            Operation.byName[name] = self
 
-#list of operations
-ALU4 = Operation(5, 2, 1)
-ALU3 = Operation(5, 1, 1)
-ALU2 = Operation(5, 0, 1)
-ALU1 = Operation(5, 7, 1)
-ALU0 = Operation(5, 6, 1)
-TMPin = Operation(5, 5)
-ALUout = Operation(5, 4)
-FinSel = Operation(5, 3, 1)
+class ALUOperation:
+    byName = {}
+    def __init__(self, opList, name):
+        self.opList = opList
+        self.name = name
+        if name in ALUOperation.byName:
+            raise Exception("ALU Operation {} already created!".format(name))
+        else:
+            ALUOperation.byName[name] = self
 
-Fin = Operation(4, 2)
-Fout = Operation(4, 1)
-Ain = Operation(4, 0)
-Aout = Operation(4, 7)
-MARHin = Operation(4, 6)
-MARLin = Operation(4, 5)
-MARHout =  Operation(4, 4)
-MARLout = Operation(4, 3)
+def createOperations():
+    ALU4 = Operation(5, 2, name = "ALU4", activeVoltage = 1)
+    ALU3 = Operation(5, 1, name = "ALU3", activeVoltage = 1)
+    ALU2 = Operation(5, 0, name = "ALU2", activeVoltage = 1)
+    ALU1 = Operation(5, 7, name = "ALU1", activeVoltage = 1)
+    ALU0 = Operation(5, 6, name = "ALU0", activeVoltage = 1)
+    TMPin = Operation(5, 5, name = "TMPin")
+    ALUout = Operation(5, 4, name = "ALUout")
+    FinSel = Operation(5, 3, name = "FinSel", activeVoltage = 1)
 
-RAMin = Operation(3, 2, 1)
-RAMout = Operation(3, 1)
-STAHin = Operation(3, 0)
-STALin = Operation(3, 7)
-STAHout = Operation(3, 6)
-STALout = Operation(3, 5)
-STRin = Operation(3, 4, 1)
-STRout = Operation(3, 3)
+    Fin = Operation(4, 2, name = "Fin")
+    Fout = Operation(4, 1, name = "Fout")
+    Ain = Operation(4, 0, name = "Ain")
+    Aout = Operation(4, 7, name = "Aout")
+    MARHin = Operation(4, 6, name = "MARHin")
+    MARLin = Operation(4, 5, name = "MARLin")
+    MARHout = Operation(4, 4, name = "MARHout")
+    MARLout = Operation(4, 3, name = "MARLout")
 
-SPHin = Operation(2, 2)
-SPLin = Operation(2, 1)
-SPHout = Operation(2, 0)
-SPLout = Operation(2, 7)
-Hin = Operation(2, 6)
-Lin = Operation(2, 5)
-Hout = Operation(2, 4)
-Lout = Operation(2, 3)
+    RAMin = Operation(3, 2, name = "RAMin", activeVoltage = 1)
+    RAMout = Operation(3, 1, name = "RAMout")
+    STAHin = Operation(3, 0, name = "STAHin")
+    STALin = Operation(3, 7, name = "STALin")
+    STAHout = Operation(3, 6, name = "STAHout")
+    STALout = Operation(3, 5, name = "STALout")
+    STRin = Operation(3, 4, name = "STRin", activeVoltage = 1)
+    STRout = Operation(3, 3, name = "STRout")
 
-PCHin = Operation(1, 2)
-PCLin = Operation(1, 1)
-PCHout = Operation(1, 0)
-PCLout = Operation(1, 7)
-CE = Operation(1, 6, 1)
-IRin = Operation(1, 5)
-STCR = Operation(1, 4, 1)
-HLTset = Operation(1, 3)
+    SPHin = Operation(2, 2, name = "SPHin")
+    SPLin = Operation(2, 1, name = "SPLin")
+    SPHout = Operation(2, 0, name = "SPHout")
+    SPLout = Operation(2, 7, name = "SPLout")
+    Hin = Operation(2, 6, name = "Hin")
+    Lin = Operation(2, 5, name = "Lin")
+    Hout = Operation(2, 4, name = "Hout")
+    Lout = Operation(2, 3, name = "Lout")
 
-Bin = Operation(0, 2)
-Cin = Operation(0, 1)
-Bout = Operation(0, 0)
-Cout = Operation(0, 7)
-Din = Operation(0, 6)
-Ein = Operation(0, 5)
-Dout = Operation(0, 4)
-Eout = Operation(0, 3)
+    PCHin = Operation(1, 2, name = "PCHin")
+    PCLin = Operation(1, 1, name = "PCLin")
+    PCHout = Operation(1, 0, name = "PCHout")
+    PCLout = Operation(1, 7, name = "PCLout")
+    CE = Operation(1, 6, name = "CE", activeVoltage = 1)
+    IRin = Operation(1, 5, name = "IRin")
+    STCR = Operation(1, 4, name = "STCR", activeVoltage = 1)
+    HLTset = Operation(1, 3, name = "HLTset")
 
-ALUADD = [                        ALU0, Fin]
-ALUADC = [                  ALU1      , Fin]
-ALUSUB = [                  ALU1, ALU0, Fin]
-ALUSBB = [            ALU2            , Fin]
-ALUINR = [            ALU2,       ALU0, Fin]
-ALUINC = [            ALU2, ALU1      , Fin]
-ALUDCR = [            ALU2, ALU1, ALU0, Fin]
-ALUDCB = [      ALU3                  , Fin]
-ALUAND = [      ALU3,             ALU0, Fin]
-ALUOR  = [      ALU3,       ALU1      , Fin]
-ALUXOR = [      ALU3,       ALU1, ALU0, Fin]
-ALUCMA = [      ALU3, ALU2            , Fin]
-ALUCMC = [      ALU3, ALU2,       ALU0, Fin]
-ALUSTC = [      ALU3, ALU2, ALU1      , Fin]
-ALURRC = [      ALU3, ALU2, ALU1, ALU0, Fin]
-ALURAL = [ALU4                        , Fin]
-ALURAR = [ALU4,                   ALU0, Fin]
+    Bin = Operation(0, 2, name = "Bin")
+    Cin = Operation(0, 1, name = "Cin")
+    Bout = Operation(0, 0, name = "Bout")
+    Cout = Operation(0, 7, name = "Cout")
+    Din = Operation(0, 6, name = "Din")
+    Ein = Operation(0, 5, name = "Ein")
+    Dout = Operation(0, 4, name = "Dout")
+    Eout = Operation(0, 3, name = "Eout")
+
+    ALUADD = ALUOperation([                        ALU0, Fin], name = "ALUADD")
+    ALUADC = ALUOperation([                  ALU1      , Fin], name = "ALUADC")
+    ALUSUB = ALUOperation([                  ALU1, ALU0, Fin], name = "ALUSUB")
+    ALUSBB = ALUOperation([            ALU2            , Fin], name = "ALUSBB")
+    ALUINR = ALUOperation([            ALU2,       ALU0, Fin], name = "ALUINR")
+    ALUINC = ALUOperation([            ALU2, ALU1      , Fin], name = "ALUINC")
+    ALUDCR = ALUOperation([            ALU2, ALU1, ALU0, Fin], name = "ALUDCR")
+    ALUDCB = ALUOperation([      ALU3                  , Fin], name = "ALUDCB")
+    ALUAND = ALUOperation([      ALU3,             ALU0, Fin], name = "ALUAND")
+    ALUOR  = ALUOperation([      ALU3,       ALU1      , Fin], name = "ALUOR")
+    ALUXOR = ALUOperation([      ALU3,       ALU1, ALU0, Fin], name = "ALUXOR")
+    ALUCMA = ALUOperation([      ALU3, ALU2            , Fin], name = "ALUCMA")
+    ALUCMC = ALUOperation([      ALU3, ALU2,       ALU0, Fin], name = "ALUCMC")
+    ALUSTC = ALUOperation([      ALU3, ALU2, ALU1      , Fin], name = "ALUSTC")
+    ALURRC = ALUOperation([      ALU3, ALU2, ALU1, ALU0, Fin], name = "ALURRC")
+    ALURAL = ALUOperation([ALU4                        , Fin], name = "ALURAL")
+    ALURAR = ALUOperation([ALU4,                   ALU0, Fin], name = "ALURAR")
+
+def getFetchCycle():
+    return [
+        [PCLout, MARLin],
+        [PCHout, MARHin],
+        [RAMout, IRin, CE]
+    ]
+def getPostInstrCycle():
 
 #registers
 registers = ["A", "B", "C", "D", "E", "H", "L"]
 registerPairs = [("B", "C", "BC"), ("D", "E", "DE"), ("H", "L", "HL"), ("SPH", "SPL", "SP")]
 def ro(r, dir):
-    return globals()[r + dir]
+    return Operation.byName[r + dir]
 
-#standard operations most instructions perform
-fetchCycle = [
-    [PCLout, MARLin],
-    [PCHout, MARHin],
-    [RAMout, IRin, CE]
-]
-postInstrCycle = [
-    [STCR]
-]    
 
-def doesMaskFit(flags, mask, relevancyMask):
-    result = 0
-    for i in range(4):
-        if relevancyMask & (0x01 << i):
-            result = result | (~(flags ^ mask) & (0x01 << i))
-        else:
-            result = result | (0x01 << i)
-    return result == 0x0F
-
+#Instruction definitons
 instructions = {}
 class Instruction:
+    byName = {}
+    byByteCode = {}
     nextInstruction = 0
     maxNumOperations = 2**5
-    def __init__(self, operations, isRegular = True, flags = 0xF0, byteCode = None, name = ""):
+    fetchCycle = []
+    postInstrCycle = []
+    fetchCycle = [
+        [PCLout, MARLin],
+        [PCHout, MARHin],
+        [RAMout, IRin, CE]
+    ]
+    postInstrCycle = [
+        [STCR]
+    ] 
+
+    def doesMaskFit(flags, mask, relevancyMask):
+        result = 0
+        for i in range(4):
+            if relevancyMask & (0x01 << i):
+                result = result | (~(flags ^ mask) & (0x01 << i))
+            else:
+                result = result | (0x01 << i)
+        return result == 0x0F
+
+    def __init__(self, operations, isRegular = True, flags = 0xF0, byteCode = None, name = None):
         if isRegular:
-            self.operations = fetchCycle + operations + postInstrCycle
+            self.operations = Instruction.fetchCycle + operations + Instruction.postInstrCycle
         else:
             self.operations = operations
         if len(self.operations) > Instruction.maxNumOperations:
@@ -129,26 +161,45 @@ class Instruction:
             Instruction.nextInstruction += 1
         self.flags = flags
         self.byteCode = byteCode
+        if name is None:
+            raise Exception("Tried to create Instruction without name!")
         self.name = name
         
         if flags & 0x0F:
-            if byteCode in instructions:
-                if type(instructions[byteCode]) is not dict:
+            if byteCode in Instruction.byByteCode:
+                if type(Instruction.byByteCode[byteCode]) is not dict:
                     raise Exception("Instruction {} has already been assigned!".format(byteCode))
             else:
-                instructions[byteCode] = {}
+                Instruction.byByteCode[byteCode] = {}
+            
+            if name in Instruction.byName:
+                if type(Instruction.byName[name]) is not dict:
+                    raise Exception("Instruction {} has already been assigned!".format(byteCode))
+            else:
+                Instruction.byName[name] = {}
             
             for i in range(2**4):
-                if doesMaskFit(i, (flags & 0xF0) >> 4, flags & 0x0F):
-                    if i in instructions[byteCode]:
+                if Instruction.doesMaskFit(i, (flags & 0xF0) >> 4, flags & 0x0F):
+                    if i in Instruction.byByteCode[byteCode]:
                         raise Exception("Instruction {} with flag {:02X} has already been assigned!".format(byteCode, flags))
                     else:
-                        instructions[byteCode][i] = self
+                        Instruction.byByteCode[byteCode][i] = self
+
+                    if i in Instruction.byName[name]:
+                        raise Exception("Instruction {} with flag {:02X} has already been assigned!".format(name, flags))
+                    else:
+                        Instruction.byName[name][i] = self
         else:
-            if byteCode in instructions:
+            if byteCode in Instruction.byByteCode:
                 raise Exception("Instruction {} has already been assigned!".format(byteCode))
             else:
-                instructions[byteCode] = self
+                Instruction.byByteCode[byteCode] = self
+                
+            if name in Instruction.byName:
+                raise Exception("Instruction {} has already been assigned!".format(byteCode))
+            else:
+                Instruction.byName[name] = self
+
 
     def __len__(self):
         return len(self.operations)
@@ -156,8 +207,6 @@ class Instruction:
     def __str__(self):
         return self.name
 
-
-#Instruction definitons
 #Control Logic
 def createControlLogicInstructions():
     #INIT
@@ -560,20 +609,20 @@ def createBranchInstructions():
     #JPO addr
     conditionals = ["C", "NC", "PE", "PO", "Z", "NZ", "P", "M"]
     Jcond = {}
-    for i in range(len(conditionals)):
+    for i, conditional in enumerate(conditionals):
         isSet = ~i & 0x01
         flagNum = int(i / 2)
         flag = (isSet << (flagNum + 4)) | (0x01 << flagNum)
         restFlag = (~flag & 0xF0) | (flag & 0x0F)
         byteCode = Instruction.nextInstruction
-        Jcond[conditionals[i]] = Instruction([[PCLout, MARLin],
+        Jcond[conditional] = Instruction([[PCLout, MARLin],
                                             [PCHout, MARHin],
                                             [RAMout, TMPin, CE],
                                             [PCLout, MARLin],
                                             [PCHout, MARHin],
                                             [RAMout, PCHin],
-                                            [ALUout, PCLin]], flags = flag, byteCode = byteCode, name = "J" + conditionals[i] + " addr")
-        Jcond[conditionals[i]] = Instruction([], flags = restFlag, byteCode = byteCode, name = "J" + conditionals[i] + " addr")
+                                            [ALUout, PCLin]], flags = flag, byteCode = byteCode, name = "J" + conditional + " addr")
+        Jcond[conditional] = Instruction([], flags = restFlag, byteCode = byteCode, name = "J" + conditional + " addr")
 
     #CALL addr
     CALLaddr = Instruction([[SPLout, TMPin],
@@ -708,7 +757,13 @@ def createStackAndMachineControlInstructions():
     #NOP
     NOP = Instruction([], name = "NOP")
 
+#All instructions
 def createInstructions():
+    createOperations()
+
+    Instruction.fetchCycle = getFetchCycle()
+    Instruction.postIntrsCycle = getPostInstrCycle()
+
     createControlLogicInstructions()
     createDataTransferInstructions()
     createArithmeticInstructions()
@@ -716,11 +771,13 @@ def createInstructions():
     createBranchInstructions()
     createStackAndMachineControlInstructions()
 
+
+#Util Functions
 def getInstructionsAsString():
     outStr = ""
     for i in range(2**8):
-        if i in instructions:
-            currInstr = instructions[i]
+        if i in Instruction.byByteCode:
+            currInstr = Instruction.byByteCode[i]
             if type(currInstr) is dict:
                 currInstr = currInstr[0]
             outStr += "{:02X} | {}\n".format(i, currInstr)
@@ -747,8 +804,8 @@ def getInfoFromAddr(addr):
         ("CNT", 4)
     ]
     byteCode, flags, count = 0, 0, 0
-    for i in range(len(pins)):
-        register, pinNum = pins[i]
+    for i, pin in enumerate(pins):
+        register, pinNum = pin
         currBit = (addr >> i) & 0x01
         if register == "IR":
             byteCode |= currBit << pinNum
@@ -773,23 +830,23 @@ if __name__ == '__main__':
             fileName = sys.argv[2] if len(sys.argv) > 2 else "ControlLogic{}".format(eepromIndex)
 
             outFile = open(fileName, "wb")
-            createInstructions()
+            createInstructions(operationsByName)
             outArr = []
 
             for eepromAddr in range(2**17):
                 byteCode, flags, step = getInfoFromAddr(eepromAddr)
                 outByte = 0x00
-                for i, op in operations[eepromIndex].items():
+                for i, op in Operation.byEeprom[eepromIndex].items():
                     outByte |= (1 - op.activeVoltage) << op.pin
                 
                 currOpList = []
                 currInstr = None
-                if byteCode in instructions:
-                    currInstr = instructions[byteCode]
+                if byteCode in Instruction.byByteCode:
+                    currInstr = Instruction.byByteCode[byteCode]
                     if type(currInstr) is dict:
                         currInstr = currInstr[flags]
                 else:
-                    currInstr = instructions["DEFAULT"]
+                    currInstr = Instruction.byName["DEFAULT"]
                 
                 if currInstr is not None and len(currInstr.operations) > step:
                     opList = currInstr.operations[step]

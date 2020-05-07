@@ -70,8 +70,8 @@ if __name__ == '__main__':
                 intSize = sentBytes
                 sentBytes = link.tx_obj(pageNum + eepromPageOffset, sentBytes)   #inserts data.pageNum
                 sentBytes = link.tx_obj(arraySize, sentBytes)   #inserts data.len
-                for index in range(len(dataArray)): #inserts data.dara
-                    link.txBuff[index + sentBytes] = dataArray[index]
+                for index, data in enumerate(dataArray): #inserts data.dara
+                    link.txBuff[index + sentBytes] = data
                 sentBytes += len(dataArray)
 
                 #send data
