@@ -30,12 +30,12 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', length = 100, 
 link = txfer.SerialTransfer("COM3")
 if __name__ == '__main__':
     try:
-        link.open()
-        time.sleep(2) # allow some time for the Arduino to completely reset
-
         instruction = sys.argv[1] if len(sys.argv) > 1 else "read"
 
         if instruction == "write":
+            link.open()
+            time.sleep(2) # allow some time for the Arduino to completely reset
+
             fileName = sys.argv[2] if len(sys.argv) > 2 else "EEPROMdata"
             fileStartPage = int(sys.argv[3]) if len(sys.argv) > 3 else 0
             fileEndPage = 0
@@ -51,7 +51,9 @@ if __name__ == '__main__':
             eepromPageOffset = int(sys.argv[5]) if len(sys.argv) > 5 else fileStartPage
             
             fileEnd = fileEndPage * 128 if fileEndPage <= 2**10 else 2**17
-            file = open(fileName, "rb").read()[(fileStartPage * 128):fileEnd]
+            file = []
+            with open(os.path.join("EEPROMFiles", fileName), "rb") as f:
+                file = f.read()[(fileStartPage * 128):fileEnd]
             pageCount = math.ceil(len(file) / 128)
 
             printProgressBar(0, pageCount)
@@ -70,8 +72,8 @@ if __name__ == '__main__':
                 intSize = sentBytes
                 sentBytes = link.tx_obj(pageNum + eepromPageOffset, sentBytes)   #inserts data.pageNum
                 sentBytes = link.tx_obj(arraySize, sentBytes)   #inserts data.len
-                for index in range(len(dataArray)): #inserts data.dara
-                    link.txBuff[index + sentBytes] = dataArray[index]
+                for index, data in enumerate(dataArray): #inserts data.dara
+                    link.txBuff[index + sentBytes] = data
                 sentBytes += len(dataArray)
 
                 #send data
@@ -100,6 +102,9 @@ if __name__ == '__main__':
 
                 pageNum += 1
         elif instruction == "read":
+            link.open()
+            time.sleep(2) # allow some time for the Arduino to completely reset
+            
             startPageNum = int(sys.argv[2]) if len(sys.argv) > 2 else 0
             endPageNum = int(sys.argv[3]) + 1 if len(sys.argv) > 3 else startPageNum + 1
             
@@ -141,7 +146,9 @@ if __name__ == '__main__':
                         offset = (4 * i + j) * 8
                         outputGroups[j] =" ".join(["{0:02X}".format(num) for num in receivedList[offset:(offset + 8)]])
                     print("   ".join(outputGroups))
-        #print("end of program")
+        elif instruction == "help":
+            print("write [fileName] [fileStartPage] [FileEndPage] [EepromPageOffset]")
+            print("read [startPage] [endPage]")
             
 
 

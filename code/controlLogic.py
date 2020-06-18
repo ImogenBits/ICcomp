@@ -1,4 +1,5 @@
 import sys
+import os
 
 operations = {}
 class Operation:
@@ -57,7 +58,7 @@ PCHout = Operation(1, 0)
 PCLout = Operation(1, 7)
 CE = Operation(1, 6, 1)
 IRin = Operation(1, 5)
-STCR = Operation(1, 4, 1)
+SRST = Operation(1, 4, 1)
 HLTset = Operation(1, 3)
 
 Bin = Operation(0, 2)
@@ -95,12 +96,13 @@ def ro(r, dir):
 
 #standard operations most instructions perform
 fetchCycle = [
+    [],
     [PCLout, MARLin],
     [PCHout, MARHin],
     [RAMout, IRin, CE]
 ]
 postInstrCycle = [
-    [STCR]
+    [SRST]
 ]    
 
 def doesMaskFit(flags, mask, relevancyMask):
@@ -185,7 +187,7 @@ def createControlLogicInstructions():
         [STRout, RAMin],
         [ALUout, MARLin, STALin, TMPin] + ALUINR[:-1],
         [STRout, RAMin, IRin],
-        [STCR]
+        [SRST]
     ]
     initFlagsZeroOpList = ([[]] * (len(fetchCycle) + 1)) + initOpList
     initFlagsNonZeroOpList = ([[HLTset]] * (len(fetchCycle) + 1)) + initOpList
@@ -199,7 +201,7 @@ def createControlLogicInstructions():
     #INIT2
     init2OpList = fetchCycle.copy()
     for i in range(Instruction.maxNumOperations - len(init2OpList)):
-        init2OpList += [[STCR]]
+        init2OpList += [[SRST]]
     init2 = Instruction(init2OpList, False, name = "INIT2")
     #DEFAULT
     default = Instruction([[]], name = "DEFAULT", byteCode = "DEFAULT")
@@ -560,20 +562,20 @@ def createBranchInstructions():
     #JPO addr
     conditionals = ["C", "NC", "PE", "PO", "Z", "NZ", "P", "M"]
     Jcond = {}
-    for i in range(len(conditionals)):
+    for i, conditional in enumerate(conditionals):
         isSet = ~i & 0x01
         flagNum = int(i / 2)
         flag = (isSet << (flagNum + 4)) | (0x01 << flagNum)
         restFlag = (~flag & 0xF0) | (flag & 0x0F)
         byteCode = Instruction.nextInstruction
-        Jcond[conditionals[i]] = Instruction([[PCLout, MARLin],
+        Jcond[conditional] = Instruction([[PCLout, MARLin],
                                             [PCHout, MARHin],
                                             [RAMout, TMPin, CE],
                                             [PCLout, MARLin],
                                             [PCHout, MARHin],
                                             [RAMout, PCHin],
-                                            [ALUout, PCLin]], flags = flag, byteCode = byteCode, name = "J" + conditionals[i] + " addr")
-        Jcond[conditionals[i]] = Instruction([], flags = restFlag, byteCode = byteCode, name = "J" + conditionals[i] + " addr")
+                                            [ALUout, PCLin]], flags = flag, byteCode = byteCode, name = "J" + conditional + " addr")
+        Jcond[conditional] = Instruction([], flags = restFlag, byteCode = byteCode, name = "J" + conditional + " addr")
 
     #CALL addr
     CALLaddr = Instruction([[SPLout, TMPin],
@@ -723,7 +725,7 @@ def getInstructionsAsString():
             currInstr = instructions[i]
             if type(currInstr) is dict:
                 currInstr = currInstr[0]
-            outStr += "{:02X} | {}\n".format(i, currInstr)
+            outStr += "{:0>2X} | {}\n".format(i, currInstr)
     return outStr
 
 def getInfoFromAddr(addr):
@@ -747,8 +749,8 @@ def getInfoFromAddr(addr):
         ("CNT", 4)
     ]
     byteCode, flags, count = 0, 0, 0
-    for i in range(len(pins)):
-        register, pinNum = pins[i]
+    for i, pin in enumerate(pins):
+        register, pinNum = pin
         currBit = (addr >> i) & 0x01
         if register == "IR":
             byteCode |= currBit << pinNum
@@ -772,7 +774,7 @@ if __name__ == '__main__':
             eepromIndex = int(sys.argv[1]) if len(sys.argv) > 1 else 5
             fileName = sys.argv[2] if len(sys.argv) > 2 else "ControlLogic{}".format(eepromIndex)
 
-            outFile = open(fileName, "wb")
+            #outFile = open(fileName, "wb")
             createInstructions()
             outArr = []
 
@@ -799,14 +801,18 @@ if __name__ == '__main__':
                             outByte |= op.activeVoltage << op.pin
                 
                 outArr.append(outByte)
-            outFile.write(bytes(outArr))
-            outFile.close()
+            with open(os.path.join("EEPROMFiles", fileName), "wb+") as outFile:
+                outFile.write(bytes(outArr))
+                outFile.close()
         elif command == "instrList":
             outFileName = sys.argv[2] if len(sys.argv) > 2 else "instructionList.txt"
-            with open(outFileName, "w") as outFile:
+            with open(outFileName, "w+") as outFile:
                 createInstructions()
                 outFile.write(getInstructionsAsString())
                 outFile.close()
+        elif command == "help":
+            print("[index] [fileName]")
+            print("instrList [fileName]")
 
             
 

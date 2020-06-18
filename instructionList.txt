@@ -1,19 +1,19 @@
- 0 | INIT
- 1 | INIT2
- 2 | MOV A, A
- 3 | MOV A, B
- 4 | MOV A, C
- 5 | MOV A, D
- 6 | MOV A, E
- 7 | MOV A, H
- 8 | MOV A, L
- 9 | MOV B, A
- A | MOV B, B
- B | MOV B, C
- C | MOV B, D
- D | MOV B, E
- E | MOV B, H
- F | MOV B, L
+00 | INIT
+01 | INIT2
+02 | MOV A, A
+03 | MOV A, B
+04 | MOV A, C
+05 | MOV A, D
+06 | MOV A, E
+07 | MOV A, H
+08 | MOV A, L
+09 | MOV B, A
+0A | MOV B, B
+0B | MOV B, C
+0C | MOV B, D
+0D | MOV B, E
+0E | MOV B, H
+0F | MOV B, L
 10 | MOV C, A
 11 | MOV C, B
 12 | MOV C, C

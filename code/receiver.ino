@@ -8,12 +8,8 @@ typedef struct {
 	byte data[128];
 } Data;
 
-//Data pin mapping
-//					D0, D1, D2...            ...D7
-static int DQ[8] = {47, 48, 49, 35, 34, 33, 32, 31};
-//Address pin mapping
-//					A0, A1, A2...                                       ...A14, A15, A16
-static int A[17] = {46, 45, 44, 43, 42, 41, 40, 39, 25, 26, 29, 27, 38, 24, 23, 37, 36};
+//Breadboard mapping
+/*
 static int WE = 22;
 static int OE = 28;
 static int CE = 30;
@@ -22,13 +18,25 @@ static int CE = 30;
 int IO[8] = {47, 48, 49, 35, 34, 33, 32, 31};
 //                A0, A1, A2...                                       ...A14, A15, A16
 int adress[17] = {46, 45, 44, 43, 42, 41, 40, 39, 25, 26, 29, 27, 38, 24, 23, 37, 36};
+*/
+
+//Shield mapping
+static int WE = 25;
+static int OE = 39;
+static int CE = 43;
+
+//           D0, D1, D2...            ...D7
+static int IO[8] = {46, 48, 50, 53, 51, 49, 47, 45};
+//                A0, A1, A2...                                       ...A14, A15, A16
+static int adress[17] = {44, 42, 40, 38, 36, 34, 32, 30, 33, 35, 41, 37, 28, 31, 29, 26, 24};
+
 
 void declarePins() {
   for (int i = 0; i < 8; i++) {
-    pinMode(DQ[i], OUTPUT);
+    pinMode(IO[i], OUTPUT);
   }
   for(int i = 0; i < 17; i++) {
-    pinMode(A[i], OUTPUT);
+    pinMode(adress[i], OUTPUT);
   }
   pinMode(WE, OUTPUT);
   pinMode(OE, OUTPUT);
@@ -44,38 +52,38 @@ byte readFromAddress(long adr) {
   digitalWrite(WE, HIGH);
   for(int i = 0; i < 17; i++) {
     if(adr % 2 == 0) {
-      digitalWrite(A[i], LOW);
+      digitalWrite(adress[i], LOW);
     }
     else {
-      digitalWrite(A[i], HIGH);
+      digitalWrite(adress[i], HIGH);
     }
     adr = adr >> 1;
   }
   for (int i = 0; i < 8; i++) {
-    digitalWrite(DQ[i], LOW);
-    pinMode(DQ[i], INPUT);
+    digitalWrite(IO[i], LOW);
+    pinMode(IO[i], INPUT);
   }
   digitalWrite(OE, LOW);
   delayMicroseconds(1);
   byte value = 0;
   for (int i = 7; i >= 0; i--) {
-    value = (value << 1) + digitalRead(DQ[i]);
+    value = (value << 1) + digitalRead(IO[i]);
   }
   digitalWrite(OE, HIGH);
   for (int i = 0; i < 8; i++) {
-    pinMode(DQ[i], OUTPUT);
+    pinMode(IO[i], OUTPUT);
   }
   return value;
 }
 
 void writeAddress(long address, byte value) {
 	for(int j = 0; j < 7; j++) {
-		digitalWrite(A[j], address & 1);
+		digitalWrite(adress[j], address & 1);
 		address >>= 1;
 	}
 
 	for(int j = 0; j < 8; j++) {
-		digitalWrite(DQ[j], value & 1);
+		digitalWrite(IO[j], value & 1);
 		value >>= 1;
 	}
 
@@ -91,13 +99,13 @@ void writeAddress(long address, byte value) {
 	for (int i = 0; i < 128; i ++) {
 		long adr = startAdr + i;
 		for(int j = 0; j < 7; j++) {
-			digitalWrite(A[j], adr & 1);
+			digitalWrite(adress[j], adr & 1);
 			adr = adr >> 1;
 		}
 
 		byte currValue = values[i];
 		for(int j = 0; j < 8; j++) {
-			digitalWrite(DQ[j], currValue & 1);
+			digitalWrite(IO[j], currValue & 1);
 			currValue = currValue >> 1;
 		}
 		//delay(1000);
