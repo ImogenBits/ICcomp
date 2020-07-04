@@ -320,6 +320,7 @@ void setup() {
   declarePins();
   Serial.begin(9600);
   delay(10);
+  Serial.println("Start");
 
 /*
   long addr = 0x0664c;

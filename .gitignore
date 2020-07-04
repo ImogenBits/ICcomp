@@ -1,2 +1,5 @@
 /EEPROMFiles/*
 /programs/*
+/code/*.o
+/code/*.exe
+/code/*.hi
